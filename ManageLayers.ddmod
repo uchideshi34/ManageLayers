@@ -1,7 +1,7 @@
 {
     "name": "Manage Layers",
     "unique_id": "uchideshi34.ManageLayers",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "uchideshi34",
     "description": "Adds feature to create and edit layers.",
     "dd_version": "1.2.0.1",

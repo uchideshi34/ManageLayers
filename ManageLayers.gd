@@ -15,10 +15,11 @@ var layer_name_line_edit = null
 var confirmwindow = null
 var mod_tool_panel = null
 var store_tree_items = {}
+var _lib_mod_config = null
 
 # Logging Functions
 const ENABLE_LOGGING = true
-const LOGGING_LEVEL = 0
+var logging_level = 0
 
 #########################################################################################################
 ##
@@ -28,7 +29,7 @@ const LOGGING_LEVEL = 0
 
 func outputlog(msg,level=0):
 	if ENABLE_LOGGING:
-		if level <= LOGGING_LEVEL:
+		if level <= logging_level:
 			printraw("(%d) <ManageLayers>: " % OS.get_ticks_msec())
 			print(msg)
 	else:
@@ -407,6 +408,63 @@ func on_mod_tool_visibility_changed():
 
 #########################################################################################################
 ##
+## _LIB CONFIG FUNCTIONS
+##
+#########################################################################################################
+
+func make_lib_configs():
+
+	# Create a config builder to ensure we can update the offset if needed
+	var _lib_config_builder = Global.API.ModConfigApi.create_config()
+	_lib_config_builder\
+		.h_box_container().enter()\
+			.label("Core Log Level ")\
+			.option_button("core_log_level", 0, ["0","1","2","3","4"])\
+		.exit()
+	_lib_mod_config = _lib_config_builder.build()
+
+	logging_level = int(_lib_mod_config.core_log_level)
+
+#########################################################################################################
+##
+## VERSION CHECKER FUNCTIONS
+##
+#########################################################################################################
+
+# Check whether a semver strng 2 is greater than string one. Only works on simple comparisons - DO NOT USE THIS FUNCTION OUTSIDE THIS CONTEXT
+func compare_semver(semver1: String, semver2: String) -> bool:
+
+	outputlog("compare_semver: semver1: " + str(semver1) + " semver2" + str(semver2),2)
+	var semver1data = get_semver_data(semver1)
+	var semver2data = get_semver_data(semver2)
+
+	if semver1data == null || semver2data == null : return false
+
+	if semver1data["major"] != semver2data["major"]:
+		return semver1data["major"] < semver2data["major"]
+	if semver1data["minor"] != semver2data["minor"]:
+		return semver1data["minor"] < semver2data["minor"]
+	if semver1data["patch"] != semver2data["patch"]:
+		return semver1data["major"] < semver2data["major"]
+	
+	return false
+
+# Parse the semver string
+func get_semver_data(semver: String):
+
+	var data = {}
+
+	if semver.split(".").size() < 3: return null
+
+	return {
+		"major": int(semver.split(".")[0]),
+		"minor": int(semver.split(".")[1]),
+		"patch": int(semver.split(".")[2].split("-")[0])
+	}
+
+
+#########################################################################################################
+##
 ## START FUNCTION FUNCTION
 ##
 #########################################################################################################
@@ -423,9 +481,10 @@ func start() -> void:
 	else:
 		outputlog("_Lib is not loaded, exiting.")
 		return
+	make_lib_configs()
 	panels_root = Global.Editor.get_node("VPartition/Panels")
 	setup_panel()
-
+	
 	var template = ResourceLoader.load(Global.Root + "windows/ConfirmDeleteWindow.tscn")
 	confirmwindow = template.instance()
 	confirmwindow.find_node("DiscardButton").visible = false
@@ -454,4 +513,13 @@ func start() -> void:
 	Global.Editor.Windows["Export"].connect("popup_hide", self, "on_possible_level_change",["popup_hide"])
 
 	Global.API.ModSignalingApi.add_user_signal("layers_changed")
+
+	var _lib_mod_meta = Global.API.ModRegistry.get_mod_info("CreepyCre._Lib").mod_meta
+	if _lib_mod_meta != null:
+		if compare_semver("1.1.2", _lib_mod_meta["version"]):
+			var update_checker = Global.API.UpdateChecker
+			update_checker.register(Global.API.UpdateChecker.builder()\
+													.fetcher(update_checker.github_fetcher("uchideshi34", "ConvertObjectIntoPattern"))\
+													.downloader(update_checker.github_downloader("uchideshi34", "ConvertObjectIntoPattern"))\
+													.build())
 	
