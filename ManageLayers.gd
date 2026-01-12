@@ -519,7 +519,7 @@ func start() -> void:
 		if compare_semver("1.1.2", _lib_mod_meta["version"]):
 			var update_checker = Global.API.UpdateChecker
 			update_checker.register(Global.API.UpdateChecker.builder()\
-													.fetcher(update_checker.github_fetcher("uchideshi34", "ConvertObjectIntoPattern"))\
-													.downloader(update_checker.github_downloader("uchideshi34", "ConvertObjectIntoPattern"))\
+													.fetcher(update_checker.github_fetcher("uchideshi34", "ManageLayers"))\
+													.downloader(update_checker.github_downloader("uchideshi34", "ManageLayers"))\
 													.build())
 	
