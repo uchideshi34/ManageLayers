@@ -1,0 +1,78 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://scripts/ui/windows/UnsavedChangesWindow.cs" type="Script" id=1]
+[ext_resource path="res://materials/WindowBackground.material" type="Material" id=2]
+
+[node name="UnsavedChangesWindow" type="WindowDialog"]
+visible = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -320.0
+margin_top = -80.0
+margin_right = 320.0
+margin_bottom = 80.0
+popup_exclusive = true
+window_title = "Unsaved Changes"
+script = ExtResource( 1 )
+labelPath = NodePath("Margins/VAlign/Label")
+
+[node name="Background" type="Panel" parent="."]
+material = ExtResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Margins" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VAlign" type="VBoxContainer" parent="Margins"]
+margin_left = 12.0
+margin_top = 12.0
+margin_right = 628.0
+margin_bottom = 148.0
+
+[node name="Label" type="Label" parent="Margins/VAlign"]
+margin_right = 616.0
+margin_bottom = 31.0
+text = "LOSE_CHANGES_TIP"
+
+[node name="Filler" type="Control" parent="Margins/VAlign"]
+margin_top = 35.0
+margin_right = 616.0
+margin_bottom = 100.0
+size_flags_vertical = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Margins/VAlign"]
+margin_top = 104.0
+margin_right = 616.0
+margin_bottom = 136.0
+alignment = 1
+
+[node name="SaveButton" type="Button" parent="Margins/VAlign/Buttons"]
+margin_right = 202.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+text = "SAVE"
+
+[node name="DiscardButton" type="Button" parent="Margins/VAlign/Buttons"]
+margin_left = 206.0
+margin_right = 409.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+text = "DISCARD"
+
+[node name="CancelButton" type="Button" parent="Margins/VAlign/Buttons"]
+margin_left = 413.0
+margin_right = 616.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+size_flags_horizontal = 3
+text = "CANCEL"
+
+[connection signal="pressed" from="Margins/VAlign/Buttons/CancelButton" to="." method="_on_CancelButton_pressed"]
