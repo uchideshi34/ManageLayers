@@ -16,6 +16,7 @@ var confirmwindow = null
 var mod_tool_panel = null
 var store_tree_items = {}
 var _lib_mod_config = null
+var create_layer_button = null
 
 # Logging Functions
 const ENABLE_LOGGING = true
@@ -113,11 +114,11 @@ func setup_panel():
 	layer_name_line_edit.placeholder_text = "New Layer Name"
 	layer_name_line_edit.align = LineEdit.ALIGN_LEFT
 
-	var button = Button.new()
-	box.add_child(button)
-	button.icon = load("res://ui/icons/menu/new.png")
-	button.text = "Create New Layer"
-	button.connect("pressed", self, "on_create_layer_button_pressed")
+	create_layer_button = Button.new()
+	box.add_child(create_layer_button)
+	create_layer_button.icon = load("res://ui/icons/menu/new.png")
+	create_layer_button.text = "Create New Layer"
+	create_layer_button.connect("pressed", self, "on_create_layer_button_pressed")
 
 
 	# Create the tree and tell it to fill the rest of the panel.
@@ -146,6 +147,10 @@ func setup_panel():
 
 	# Draw the tree for the first time
 	refresh_tree()
+	# in setup_panel(), after the controls are added to the tree
+	layer_id_line_edit.focus_next = layer_id_line_edit.get_path_to(layer_name_line_edit)
+	layer_name_line_edit.focus_next = layer_name_line_edit.get_path_to(create_layer_button)
+	create_layer_button.focus_next = create_layer_button.get_path_to(layer_id_line_edit)
 
 func refresh_tree():
 
@@ -295,6 +300,7 @@ func on_create_layer_button_pressed():
 	Global.API.LayerApi.add_layer(int(layer_id_line_edit.text), layer_name_line_edit.text,level)
 	refresh_tree()
 	Global.API.ModSignalingApi.emit_signal("layers_changed")
+	layer_id_line_edit.grab_focus()
 
 func print_popupmenu(popupmenu: PopupMenu):
 	outputlog("popupmenu: " + str(popupmenu),2)
@@ -400,11 +406,14 @@ func on_mod_tool_visibility_changed():
 	panel.visible = mod_tool_panel.visible
 	refresh_tree()
 
+
 #########################################################################################################
 ##
 ## UPDATE FUNCTION
 ##
 #########################################################################################################
+
+
 
 #########################################################################################################
 ##
@@ -522,4 +531,5 @@ func start() -> void:
 													.fetcher(update_checker.github_fetcher("uchideshi34", "ManageLayers"))\
 													.downloader(update_checker.github_downloader("uchideshi34", "ManageLayers"))\
 													.build())
+	
 	
